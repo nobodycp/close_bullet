@@ -14,6 +14,7 @@ setuptools.setup(
         'colorama',
         'phone_iso3166',
         '1stcaptcha',
+	'pyinstaller',
     ],
     description='Privet Library For 01 Team',
     packages=setuptools.find_packages(),
