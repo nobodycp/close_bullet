@@ -1,6 +1,7 @@
 from .backend import General, ProcessBar, userdata
 from .Z1 import Options, Requests, userdata, Lists, Nopecha, OneStCaptcha
 import queue
+from threading import Thread
 
 process = ProcessBar()
 captcha1 = OneStCaptcha()
