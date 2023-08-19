@@ -5,7 +5,6 @@ import queue
 process = ProcessBar()
 captcha1 = OneStCaptcha()
 captcha2 = Nopecha
-
 que = queue.Queue()
 
 
