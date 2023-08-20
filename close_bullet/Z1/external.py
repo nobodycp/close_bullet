@@ -1,5 +1,4 @@
-import requests
-from ..backend import backend_data
+from . import backend_data, requests
 
 
 class SmsPlus:

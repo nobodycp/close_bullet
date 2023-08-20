@@ -1,13 +1,12 @@
-import os
 from . import userdata, Lists
 import random
 import requests
-import requests
-import zipfile
-# import undetected_chromedriver as uc
+
+
 
 class Requests:
     proxy_list = Lists.proxy
+
     def proxy_session(self):
         # print(self.settings_active_proxy)
         s = requests.session()

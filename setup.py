@@ -6,12 +6,10 @@ setuptools.setup(
     install_requires=[
         'requests',
         'WMI',
-        'pystyle',
         'pycountry',
         'phonenumbers',
         'nopecha',
         'names',
-        'colorama',
         'phone_iso3166',
         '1stcaptcha',
 	'pyinstaller',

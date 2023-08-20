@@ -11,14 +11,12 @@ class Data:
     def __init__(self):
         self.user_data = {}
         self.backend_data = {'remote': {}, 'user': {}}
-        self.run()
 
     def run(self):
-        self.terminal()
         self.user_data['hwid'] = self.hwid()
         self.user_data['session'] = self.session()
         self.append_file_data()
-        self.backend_data['remote'] = self.remote_data(self.user_data['Root.key'], self.user_data['hwid']) # type: ignore
+        self.remote_data()
         self.fix_backend_data()
 
     def fix_backend_data(self):
@@ -57,10 +55,14 @@ class Data:
                 else:
                     self.user_data[f'{section}.{key}'] = value
 
-    @staticmethod
-    def read_config_file():
+    def read_config_file(self):
         file_cfg = configparser.ConfigParser()
         file_cfg.read('config.ini')
+        screen_resize = file_cfg['Root'].getboolean('screen_resize')
+        # print(type(screen_resize))
+        if screen_resize:
+            self.terminal()
+            return file_cfg
         return file_cfg
 
     @staticmethod
@@ -82,27 +84,24 @@ class Data:
     def terminal():
         title = str(win32console.GetConsoleTitle())
         appname = title.split('\\')[-1]
-        block_dev = ['python.exe', 'py.txt']
+        block_dev = ['python.exe', 'py.exe']
         if appname not in block_dev:
             if title.endswith('.exe'):
                 win32console.SetConsoleTitle(f'{appname.strip()}')
                 hwnd = win32gui.GetForegroundWindow()
                 win32gui.SetWindowPos(hwnd, 0, 0, 0, 700, 300, 0)
 
-    @staticmethod
-    def remote_data(key, hwid):
-        payloads = {'key': f'{key}', 'hwID': f'{hwid}'}
-        req = requests.post('http://84.32.128.212:8000/api/v1/clients/detail/', json=payloads)
-        # print(req.text)
-        if hwid in req.text:
-            return req.json()
-
-
-try:
-    x = Data()
-    userdata = x.user_data
-    backend_data = x.backend_data
-except Exception as e:
-    raise Exception(e)
+    def remote_data(self):
+        hwid = self.user_data['hwid']
+        key = self.user_data['Root.key']
+        payloads = {'key':f'{key}','hwID':f'{hwid}'}
+        try:
+            req = requests.post('http://84.32.128.212:8000/api/v1/clients/detail/',json=payloads)
+            # print(req.text)
+            if hwid in req.text:
+                self.backend_data['remote'] = req.json()
+            return 0
+        except Exception as e:
+            raise Exception("Server Error Connection ..")
 
 

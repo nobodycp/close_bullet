@@ -7,12 +7,10 @@ import names
 import phonenumbers
 from phonenumbers import carrier, timezone
 import pycountry
-import requests
 from phone_iso3166.country import phone_country
 from urllib.parse import unquote
 from . import Lists
 
-user_agents = requests.get("https://pastebin.com/raw/hxqYvBtu").text.split("\n")
 
 
 class Options:
@@ -67,7 +65,6 @@ class Options:
     @staticmethod
     def random_device_id() -> str:
         return str(uuid.uuid4())
-
     @staticmethod
     def parse_text(text: str, before: str, after: str) -> str:
         return re.search(f'{before}(.*?){after}', text).group(1).strip().rstrip()
@@ -84,7 +81,6 @@ class Options:
         full_name = f'{first_name} {last_name}'
         return {'title': title, 'full_name': full_name, 'first_name': first_name, 'last_name': last_name,
                 'sex': str(sex)}
-
     @staticmethod
     def email(domain: str = 'gmail.com') -> str:
         round_ = ['_', '.', '', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -97,7 +93,7 @@ class Options:
         return ''.join(random.choice(string.digits + string.ascii_letters) for _ in range(int(num)))
     @staticmethod
     def random_user_agent() -> str:
-        ua = str(user_agents[random.randrange(len(user_agents))]).strip()
+        ua = str(Lists.user_agents()[random.randrange(len(Lists.user_agents()))]).strip()
         return ua
     @staticmethod
     def header_parse(headers_: str) -> dir(): # type: ignore
