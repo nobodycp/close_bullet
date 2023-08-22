@@ -7,10 +7,10 @@ import requests
 class Requests:
     proxy_list = Lists.proxy
 
-    def proxy_session(self):
+    def proxy_session(self, Proxy=False):
         # print(self.settings_active_proxy)
-        s = requests.session()
-        if userdata['Proxy.active']:
+        s = requests.Session()
+        if Proxy:
             proxy = self.proxy_list[random.randrange(len(self.proxy_list))].strip()
             # print(proxy)
             s.proxies = {
@@ -19,7 +19,16 @@ class Requests:
             }
             return s
         else:
-            return s
+            if userdata['Proxy.active']:
+                proxy = self.proxy_list[random.randrange(len(self.proxy_list))].strip()
+                # print(proxy)
+                s.proxies = {
+                    'http':f'{userdata["Proxy.type"]}://{proxy}',
+                    'https':f'{userdata["Proxy.type"]}://{proxy}',
+                }
+                return s
+            else:
+                return s
 
 # class Selenium:
 #     NOPECHA_KEY = userdata['Captcha.nopecha']

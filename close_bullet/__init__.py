@@ -1,5 +1,6 @@
 from .backend import General,ProcessBar,userdata, Lists
-from .Z1 import Options,Requests,userdata,Nopecha,OneStCaptcha
+from .Z1 import Options,Requests,userdata,Nopecha,OneStCaptcha, Onesecmail
+from .global_lib import *
 import time
 import random
 from threading import Thread

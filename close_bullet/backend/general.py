@@ -1,10 +1,7 @@
 import random
 import time
-
 import requests
-
-from ..global_lib.colorama import Style,Fore
-from ..global_lib.pystyle import *
+from ..global_lib import *
 
 user_agents = requests.get("https://pastebin.com/raw/hxqYvBtu").text.split("\n")
 

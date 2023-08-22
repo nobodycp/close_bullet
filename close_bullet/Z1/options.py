@@ -2,9 +2,11 @@ import base64
 import random
 import re
 import string
+import urllib
 import uuid
 import names
 import phonenumbers
+import requests
 from phonenumbers import carrier, timezone
 import pycountry
 from phone_iso3166.country import phone_country
@@ -16,7 +18,7 @@ from . import Lists
 class Options:
     # print("User_Agents")
     @staticmethod
-    def phone_number(phone_number_) -> dir():
+    def phone_number(phone_number_) -> dict:
         phone_number_ = f"+{phone_number_.replace('+', '')}"
         try:
             pn = phonenumbers.parse(phone_number_)
@@ -69,7 +71,7 @@ class Options:
     def parse_text(text: str, before: str, after: str) -> str:
         return re.search(f'{before}(.*?){after}', text).group(1).strip().rstrip()
     @staticmethod
-    def names(sex: str = None) -> dir(): # type: ignore
+    def names(sex: str = None) -> dict:
         if sex is None:
             sex = random.choice(('male', 'female'))
         if sex == 'male':
@@ -127,3 +129,9 @@ class Options:
     def proxy():
         proxy_list = Lists.proxy
         return proxy_list[random.randrange(len(proxy_list))].strip()
+    @staticmethod
+    def random_from_list(YourList:list):
+        return random.choice(YourList)
+    @staticmethod
+    def url_decode(text):
+        return urllib.parse.unquote(text)
