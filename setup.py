@@ -9,6 +9,7 @@ setuptools.setup(
         'pycountry',
         'phonenumbers',
         'nopecha',
+	'pysocks',
         'names',
         'phone_iso3166',
         '1stcaptcha',
