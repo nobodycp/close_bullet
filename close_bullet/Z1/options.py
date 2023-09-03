@@ -1,102 +1,91 @@
 import base64
 import random
 import re
-import string
 import urllib
 import uuid
 import names
 import phonenumbers
-import requests
-from phonenumbers import carrier, timezone
+from phonenumbers import carrier,timezone
 import pycountry
 from phone_iso3166.country import phone_country
 from urllib.parse import unquote
-from . import Lists
+from . import lists
 
+class Phone:
+    """
+    Example:
+        * phone=Phone('+972567108204')
+        * print(phone.number)
+    Attributes:
+        number
+        prefix
+        local
+        zero_lod
+        alpha_2
+        name
+        carrier
+        time_zone
+        local
+    """
+    def __init__(self, number:str):
+        self.number = f'+{number.replace("+", "")}'
+        self.prefix = phonenumbers.parse(self.number).country_code
+        self.local = phonenumbers.parse(self.number).national_number
+        self.international = phonenumbers.format_number(phonenumbers.parse(self.number), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+        self.zero_lod = phonenumbers.format_number(phonenumbers.parse(self.number), phonenumbers.PhoneNumberFormat.NATIONAL)
+        self.alpha_2 = phone_country(number)
+        if self.prefix == 383:
+            self.alpha_3 = 'XXK'
+            self.name = 'Kosovo'
+        else:
+            self.alpha_3 = pycountry.countries.get(alpha_2=self.alpha_2).alpha_3
+            self.name = pycountry.countries.get(alpha_2=self.alpha_2).name
+        self.carrier = carrier.name_for_number(phonenumbers.parse(number, self.alpha_2), "en")
+        self.time_zone = timezone.time_zones_for_number(phonenumbers.parse(self.number, self.alpha_2))
+class Randoms:
+    @staticmethod
+    def proxy()->str:
+        return str(random.choice(lists.proxy)).strip()
+    @staticmethod
+    def device_id()->str:
+        return str(uuid.uuid4()).strip()
+    @staticmethod
+    def user_agent()->str:
+        return str(random.choice(lists.user_agents)).strip()
 
-
-class Options:
-    # print("User_Agents")
     @staticmethod
-    def phone_number(phone_number_) -> dict:
-        phone_number_ = f"+{phone_number_.replace('+', '')}"
-        try:
-            pn = phonenumbers.parse(phone_number_)
-            number_without_prefix = pn.national_number
-            # country_code_name = region_code_for_country_code(pn.country_code)
-            country_code_prefix = pn.country_code
-            country = pycountry.countries.get(alpha_2=phone_country(phone_number_))
-            alpha_2 = phone_country(phone_number_)
-            national_f = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
-            number_with_zero = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.NATIONAL)
-            ro_number = phonenumbers.parse(phone_number_, alpha_2)
-            carrier_name = carrier.name_for_number(ro_number, "en")
-            time_zone = timezone.time_zones_for_number(ro_number)
-            # carrier = carrier.name_for_number(sac, "en")
-            if country_code_prefix == 383:
-                data = {
-                    "prefix": country_code_prefix,
-                    "local": number_without_prefix,
-                    "national": national_f,
-                    "zero": number_with_zero,
-                    "alpha_2": alpha_2,
-                    "alpha_3": 'XXK',
-                    "carrier": carrier_name,
-                    "name": 'Kosovo',
-                    "full": phone_number_,
-                    "time_zone": time_zone,
-                }
-                return data
-            else:
-                data = {
-                    "prefix": country_code_prefix,
-                    "local": number_without_prefix,
-                    "national": national_f,
-                    "zero": number_with_zero,
-                    "alpha_2": alpha_2,
-                    "alpha_3": country.alpha_3,
-                    "carrier": carrier_name,
-                    "name": country.name,
-                    "full": phone_number_,
-                    "time_zone": time_zone,
-                }
-                return data
-        except Exception as e:
-            open('Logs.txt', 'a').write(f'{e} ----> Options File Error in phone_number fun : {phone_number_}\n')
-            raise TypeError(f'Options File Error in phone_number fun : {phone_number_}\n')
+    def strings(length:int, mode)->str:
+        return ''.join(random.choice(mode) for _ in range(int(length)))
     @staticmethod
-    def random_device_id() -> str:
-        return str(uuid.uuid4())
-    @staticmethod
-    def parse_text(text: str, before: str, after: str) -> str:
-        return re.search(f'{before}(.*?){after}', text).group(1).strip().rstrip()
-    @staticmethod
-    def names(sex: str = None) -> dict:
-        if sex is None:
-            sex = random.choice(('male', 'female'))
-        if sex == 'male':
+    def from_list(YourList:list):
+        return random.choice(YourList)
+class FakeName:
+    """
+    Example:
+        * name = FakeName(sex='male', domain='gmail.com')
+        * print(name.full_name)
+    Attributes:
+        title
+        first_name
+        last_name
+        full_name
+        email
+    """
+    def __init__(self, sex:str=random.choice(('male', 'female')) ,domain:str='gmail.com'):
+        if sex.lower() == 'male':
             title = 'Mr'
         else:
             title = 'Ms'
-        last_name = names.get_last_name()
-        first_name = names.get_first_name((str(sex)))
-        full_name = f'{first_name} {last_name}'
-        return {'title': title, 'full_name': full_name, 'first_name': first_name, 'last_name': last_name,
-                'sex': str(sex)}
+        self.title = title
+        self.first_name = names.get_first_name(sex.lower())
+        self.last_name = names.get_last_name()
+        self.full_name = f'{self.first_name} {self.last_name}'
+        self.email = self.full_name.replace(' ', random.choice(['_', '.', '', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])) + f'@{domain}'
+
+class Options:
     @staticmethod
-    def email(domain: str = 'gmail.com') -> str:
-        round_ = ['_', '.', '', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-        gen = round_[random.randrange(len(round_))].strip().lower()
-        login = names.get_full_name().replace(' ', gen).lower().strip()
-        email = login + f'@{domain}'
-        return email
-    @staticmethod
-    def randoms(num: int) -> str:
-        return ''.join(random.choice(string.digits + string.ascii_letters) for _ in range(int(num)))
-    @staticmethod
-    def random_user_agent() -> str:
-        ua = str(Lists.user_agents()[random.randrange(len(Lists.user_agents()))]).strip()
-        return ua
+    def parse_text(text: str, before: str, after: str) -> str:
+        return re.search(f'{before}(.*?){after}', text).group(1).strip().rstrip()
     @staticmethod
     def header_parse(headers_: str) -> dir(): # type: ignore
         headers = {}
@@ -126,12 +115,7 @@ class Options:
     def image_to_base64(image):
         return base64.b64encode(image).decode()
     @staticmethod
-    def proxy():
-        proxy_list = Lists.proxy
-        return proxy_list[random.randrange(len(proxy_list))].strip()
-    @staticmethod
-    def random_from_list(YourList:list):
-        return random.choice(YourList)
-    @staticmethod
     def url_decode(text):
         return urllib.parse.unquote(text)
+
+Option = Options()

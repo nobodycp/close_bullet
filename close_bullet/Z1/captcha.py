@@ -53,7 +53,7 @@ class OneStCaptcha:
                 raise Exception(result['messeage'])
         except Exception as e:
             raise Exception(f"OneStCaptcha ....{e}")
-    def reCAPTCHA2(self, url, key, invisible=False) -> str:
+    def reCAPTCHA2(self, url:str, key:str, invisible:bool=False) -> str:
         try:
             result = self.client.recaptcha_v2_task_proxyless(site_url=url, site_key=key, invisible=invisible)
             if result["code"] == 0:  # success:
@@ -66,7 +66,16 @@ class OneStCaptcha:
         try:
             result = self.client.recaptcha_v3_task_proxyless(site_url=url, site_key=key, page_action=action)
             if result["code"] == 0:  # success:
-                print(result["token"])
+                return result["token"]
+            else:  # wrong
+                raise Exception(result["messeage"])
+        except Exception as e:
+            raise Exception(f"OneStCaptcha Error ....{e}")
+    def reCAPTCHA3_Enterprise(self, url:str, key:str, action='check'):
+        try:
+            result = self.client.recaptcha_v3_enterprise_task_proxyless(site_url=url, site_key=key, page_action=action)
+            if result["code"] == 0:  # success:
+                return result["token"]
             else:  # wrong
                 raise Exception(result["messeage"])
         except Exception as e:

@@ -1,6 +1,3 @@
-import random
-from . import Lists
-# from ..Z1 import SmsPlus
 import requests
 
 
@@ -9,33 +6,30 @@ class Check:
         self.user_data = backend_data['user']
         self.remote_data = backend_data['remote']
 
-    def user_group_get_number(self):
-        list_number = Lists.number
-        check_list = random.sample(list_number, self.remote_data['number_of_random_to_check'])
-        check_list = list(dict.fromkeys(check_list))
-        return check_list
+    # def user_group_get_number(self):
+    #     list_number = lists.number
+    #     check_list = random.sample(list_number, self.remote_data['number_of_random_to_check'])
+    #     check_list = list(dict.fromkeys(check_list))
+    #     return check_list
 
     @staticmethod
     def telegram_report(message):
         print(message)
 
     def get_user_information(self):
-        try:
-            hwid = self.user_data['hwid']
-            req = requests.get('https://ipinfo.io').json()
-            message = f"""
-            hwid = {hwid}
-            ip = {req['ip']}
-            city = {req['city']}
-            region = {req['region']}
-            country = {req['country']}
-            loc = {req['loc']}
-            org = {req['org']}
-            timezone = {req['timezone']}
-            """.replace('  ', '').strip()
-            return message
-        except:
-            raise Exception(exit())
+        hwid = self.user_data['hwid']
+        req = requests.get('https://ipinfo.io').json()
+        message = f"""
+        hwid = {hwid}
+        ip = {req['ip']}
+        city = {req['city']}
+        region = {req['region']}
+        country = {req['country']}
+        loc = {req['loc']}
+        org = {req['org']}
+        timezone = {req['timezone']}
+        """.replace('  ','').strip()
+        return message
 
     def run(self):
         if self.user_data['hwid'] not in str(self.remote_data):

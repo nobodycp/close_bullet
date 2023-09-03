@@ -18,7 +18,6 @@ class Data:
         self.append_file_data()
         self.remote_data()
         self.fix_backend_data()
-
     def fix_backend_data(self):
         try:
             self.backend_data['user']['hwid'] = self.user_data['hwid']
@@ -36,7 +35,7 @@ class Data:
             self.user_data.pop('hwid')
             self.user_data.pop('session')
             self.user_data.pop('Root.key')
-        except Exception:
+        except Exception as e:
             pass
 
     def append_file_data(self):

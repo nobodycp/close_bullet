@@ -1,7 +1,9 @@
 import random
 import time
 import requests
-from ..global_lib import *
+from .coloramas import Fore, Style
+from .style import Box, Colors, Write
+
 
 user_agents = requests.get("https://pastebin.com/raw/hxqYvBtu").text.split("\n")
 
@@ -10,11 +12,10 @@ class Lists:
         self.user_data = userdata
         self.proxy = self._proxy()
         self.number = self._number()
-
+        self.user_agents = self.user_agents()
     def _proxy(self):
         try:
             with open(str(self.user_data['Proxy.list'])) as proxylist:
-                # print("Open proxy")
                 proxylist = proxylist.readlines()
             return proxylist
         except Exception as e:
@@ -37,60 +38,55 @@ class Lists:
         return user_agents
 
 
-class General:
-    def __init__(self, userdata):
-        self.user_data = userdata
+class Message:
     @staticmethod
-    def welcome_message(name):
+    def welcome(name):
         # print(f"{Fore.GREEN}{Back.RED}{Style.DIM}Hello")
-        _Hello = Box.Lines(f'Welcome ⚡ {name}\nCoded By : https://t.me/Mnaek_Kabsha',pepite=' 💀 ')
+        _Hello = Box.Lines(f'Welcome  {name}\nCoded By : https://t.me/Mnaek_Kabsha',pepite=' 💀 ')
         # ✅ ❌ 💲❗❓
         color = Colors.all_colors[random.randrange(0,len(Colors.all_colors))]
         Write.Print(_Hello,color,interval=0.01)
-
     @staticmethod
-    def error_message(message,timeout=10, interval=0.1):
+    def color(message,timeout=10, interval=0.1):
         color = Colors.all_colors[random.randrange(0,len(Colors.all_colors))]
         Write.Print(message ,color,interval=interval)
         time.sleep(int(timeout))
 
 
-class ProcessBar:
-    Successfully = 0
-    Retry = []
-    Failed = 0
-    Bad = []
+
+class ResBar:
+    valid = 0
+    retry = []
+    failed = 0
+    Bad_to_file = []
 
     def print_res(self,q_size):
-        # print(f"This is {Fore.GREEN}color{Style.RESET_ALL}!")
         print(
-            f"{Style.RESET_ALL}\r {Fore.BLUE}{q_size}{Style.RESET_ALL} | {Fore.GREEN}🗸 {self.Successfully}{Style.RESET_ALL} | "
-            f"{Fore.RED}✘ {self.Failed}{Style.RESET_ALL} | "
-            f"{Fore.YELLOW + Style.BRIGHT}♺ {len(set(self.Retry))}{Style.RESET_ALL} ",end='')
+            f"{Style.RESET_ALL}\r {Fore.BLUE}{q_size}{Style.RESET_ALL} | {Fore.GREEN}🗸 {self.valid}{Style.RESET_ALL} | "
+            f"{Fore.RED}✘ {self.failed}{Style.RESET_ALL} | "
+            f"{Fore.YELLOW + Style.BRIGHT}♺ {len(set(self.retry))}{Style.RESET_ALL} ",end='')
         # print(retry)
-
     def save_bad_data(self):
         with open('bad_retry.txt','a') as bad_data:
-            for bad in self.Bad:
+            for bad in self.Bad_to_file:
                 bad_data.write(f'{bad}\n')
             bad_data.close()
 
     def check_bad(self,data):
-        if data in self.Bad:
+        if data in self.Bad_to_file:
             return 1
-        elif self.Retry.count(data) >= 5:
-            self.Bad.append(data)
-            self.Failed += 1
+        elif self.retry.count(data) >= 5:
+            self.Bad_to_file.append(data)
+            self.failed += 1
             try:
-                self.Retry.remove(data)
-                self.Retry.remove(data)
-                self.Retry.remove(data)
-                self.Retry.remove(data)
-                self.Retry.remove(data)
+                self.retry.remove(data)
+                self.retry.remove(data)
+                self.retry.remove(data)
+                self.retry.remove(data)
+                self.retry.remove(data)
             except:
                 pass
             return 1
         else:
             return 0
-
 
