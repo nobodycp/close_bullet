@@ -1,6 +1,70 @@
+from os import name as _name, system as _system, get_terminal_size as _terminal_size, terminal_size
 from sys import stdout as _stdout
 from time import sleep as _sleep
-from os import get_terminal_size as _terminal_size
+
+if _name == 'nt':
+    from ctypes import c_int, c_byte, Structure, byref, windll
+
+    class _CursorInfo(Structure):
+        _fields_ = [("size", c_int),
+                    ("visible", c_byte)]
+
+class System:
+
+    """
+    1 variable:
+        Windows      |      tells if the user is on Windows OS or not
+    5 functions:
+        Init()       |      initialize the terminal to allow the use of colors
+        Clear()      |      clear the terminal
+        Title()      |      set the title of terminal, only for Windows
+        Size()       |      set the size of terminal, only for Windows
+        Command()    |      enter a shell command
+    """
+
+    Windows = _name == 'nt'
+    @staticmethod
+    def Init():
+        _system('')
+    @staticmethod
+    def Clear():
+        return _system("cls" if System.Windows else "clear")
+    @staticmethod
+    def Title(title: str):
+        if System.Windows:
+            return _system(f"title {title}")
+    @staticmethod
+    def Size(x: int, y: int):
+        if System.Windows:
+            return _system(f"mode {x}, {y}")
+    @staticmethod
+    def Command(command: str):
+        return _system(command)
+
+class Cursor:
+    @staticmethod
+    def HideCursor():
+        if _name == 'nt':
+            Cursor._cursor(False)
+        elif _name == 'posix':
+            _stdout.write("\033[?25l")
+            _stdout.flush()
+    @staticmethod
+    def ShowCursor():
+        if _name == 'nt':
+            Cursor._cursor(True)
+        elif _name == 'posix':
+            _stdout.write("\033[?25h")
+            _stdout.flush()
+
+    """ ! developper area ! """
+
+    def _cursor(visible: bool):
+        ci = _CursorInfo()
+        handle = windll.kernel32.GetStdHandle(-11)
+        windll.kernel32.GetConsoleCursorInfo(handle, byref(ci))
+        ci.visible = visible
+        windll.kernel32.SetConsoleCursorInfo(handle, byref(ci))
 
 
 class _MakeColors:
@@ -78,14 +142,14 @@ class Colors:
         DynamicMIX()       |      mix two or more dynamic colors
         Symbol()           |      create a colored symbol, ex: '[!]'
     """
-
+    @staticmethod
     def StaticRGB(r: int,g: int,b: int) -> str:
         return _MakeColors._start(f"{r};{g};{b}")
-
+    @staticmethod
     def DynamicRGB(r1: int,g1: int,b1: int,r2: int,
                    g2: int,b2: int) -> list:
         ...
-
+    @staticmethod
     def StaticMIX(colors: list,_start: bool = True) -> str:
         rgb = []
         for col in colors:
@@ -100,7 +164,7 @@ class Colors:
         b = round(sum(rgb[2] for rgb in rgb) / len(rgb))
         rgb = f'{r};{g};{b}'
         return _MakeColors._start(rgb) if _start else rgb
-
+    @staticmethod
     def DynamicMIX(colors: list):
         _colors = []
         for color in colors:
@@ -116,7 +180,7 @@ class Colors:
         return _MakeColors._reverse(colors=final)
 
     """ symbols """
-
+    @staticmethod
     def Symbol(symbol: str,col: str,col_left_right: str,left: str = '[',right: str = ']') -> str:
         return f"{col_left_right}{left}{col}{symbol}{col_left_right}{right}{Col.reset}"
 
@@ -291,24 +355,10 @@ Col = Colors
 
 
 class Colorate:
-    """
-    6 functions:
-        Static colors:
-            Color()                 |            color a text with a static color
-            Error()                 |            make an error with red text and advanced arguments
-            Format()                |            set different colors for different parts of a text
-        Dynamic colors:
-            Vertical()              |           fade a text vertically
-            Horizontal()            |           fade a text horizontally
-            Diagonal()              |           fade a text diagonally
-            DiagonalBackwards()     |           fade a text diagonally but backwards
-    """
-
-    """ fix/static colors """
-
+    @staticmethod
     def Color(color: str,text: str,end: bool = True) -> str:
         return _MakeColors._maketext(color=color,text=text,end=end)
-
+    @staticmethod
     def Error(text: str,color: str = Colors.red,end: bool = False,spaces: bool = 1,enter: bool = True,
               wait: int = False) -> str:
         content = _MakeColors._maketext(
@@ -327,7 +377,7 @@ class Colorate:
         return var
 
     """ faded/dynamic colors"""
-
+    @staticmethod
     def Vertical(color: list,text: str,speed: int = 1,start: int = 0,stop: int = 0,cut: int = 0,
                  fill: bool = False) -> str:
         color = color[cut:]
@@ -365,7 +415,7 @@ class Colorate:
                     color_n = stop
 
         return result.rstrip()
-
+    @staticmethod
     def Horizontal(color: list,text: str,speed: int = 1,cut: int = 0) -> str:
         color = color[cut:]
         lines = text.splitlines()
@@ -385,7 +435,7 @@ class Colorate:
                     color_n = 0
             result += "\n"
         return result.rstrip()
-
+    @staticmethod
     def Diagonal(color: list,text: str,speed: int = 1,cut: int = 0) -> str:
 
         color = color[cut:]
@@ -406,7 +456,7 @@ class Colorate:
             result += "\n"
 
         return result.rstrip()
-
+    @staticmethod
     def DiagonalBackwards(color: list,text: str,speed: int = 1,cut: int = 0) -> str:
         color = color[cut:]
 
@@ -429,7 +479,7 @@ class Colorate:
                     color_n = 0
             result = result + '\n' + resultL
         return result.strip()
-
+    @staticmethod
     def Format(text: str,second_chars: list,mode,principal_col: Colors.col,second_col: str):
         if mode == Colorate.Vertical:
             ctext = mode(principal_col,text,fill=True)
@@ -449,29 +499,38 @@ class Write:
         Print()         |          print a text to the terminal while coloring it and with a fade and write effect
         Input()         |          same than Print() but adds an input to the end and returns its valor
     """
+    @staticmethod
+    def Print(text: str, color: list, interval=0.05, hide_cursor: bool = True, end: str = Colors.reset) -> None:
+        if hide_cursor:
+            Cursor.HideCursor()
 
-    def Print(text: str,color: list,interval=0.05,hide_cursor: bool = True,end: str = Colors.reset) -> None:
-
-        Write._write(text=text,color=color,interval=interval)
+        Write._write(text=text, color=color, interval=interval)
 
         _stdout.write(end)
         _stdout.flush()
 
-    def Input(text: str,color: list,interval=0.05,hide_cursor: bool = True,input_color: str = Colors.reset,
-              end: str = Colors.reset,func=input) -> str:
+        if hide_cursor:
+            Cursor.ShowCursor()
+    @staticmethod
+    def Input(text: str, color: list, interval=0.05, hide_cursor: bool = True, input_color: str = Colors.reset, end: str = Colors.reset, func = input) -> str:
+        if hide_cursor:
+            Cursor.HideCursor()
 
-        Write._write(text=text,color=color,interval=interval)
+        Write._write(text=text, color=color, interval=interval)
 
         valor = func(input_color)
 
         _stdout.write(end)
         _stdout.flush()
 
+        if hide_cursor:
+            Cursor.ShowCursor()
+
         return valor
 
     " ! developper area ! "
-
-    def _write(text: str,color,interval: int):
+    @staticmethod
+    def _write(text: str,color: object,interval: int) -> object:
         lines = list(text)
         if type(color) == list:
             while not len(lines) <= len(color):
@@ -482,7 +541,7 @@ class Write:
         n = 0
         for line in lines:
             if type(color) == list:
-                _stdout.write(_MakeColors._makeansi(color[n],line))
+                _stdout.write(_MakeColors._makeansi(color[n], line))
             else:
                 _stdout.write(color + line)
             _stdout.flush()
@@ -506,18 +565,18 @@ class Center:
     center = 'CENTER'
     left = 'LEFT'
     right = 'RIGHT'
-
+    @staticmethod
     def XCenter(text: str,spaces: int = None,icon: str = " "):
         if spaces is None:
             spaces = Center._xspaces(text=text)
         return "\n".join((icon * spaces) + text for text in text.splitlines())
-
+    @staticmethod
     def YCenter(text: str,spaces: int = None,icon: str = "\n"):
         if spaces is None:
             spaces = Center._yspaces(text=text)
 
         return icon * spaces + "\n".join(text.splitlines())
-
+    @staticmethod
     def Center(text: str,xspaces: int = None,yspaces: int = None,xicon: str = " ",yicon: str = "\n") -> str:
         if xspaces is None:
             xspaces = Center._xspaces(text=text)
@@ -527,7 +586,7 @@ class Center:
 
         text = yicon * yspaces + "\n".join(text.splitlines())
         return "\n".join((xicon * xspaces) + text for text in text.splitlines())
-
+    @staticmethod
     def GroupAlign(text: str,align: str = center):
         align = align.upper()
         if align == Center.center:
@@ -540,7 +599,7 @@ class Center:
         #     return '\n'.join((' ' * (length - maxLineSize)) + line for line in text.splitlines())
         else:
             raise Center.BadAlignment()
-
+    @staticmethod
     def TextAlign(text: str,align: str = center):
         align = align.upper()
         mlen = max(len(i) for i in text.splitlines())
@@ -556,7 +615,7 @@ class Center:
             raise Center.BadAlignment()
 
     """ ! developper area ! """
-
+    @staticmethod
     def _xspaces(text: str):
         try:
             col = _terminal_size().columns
@@ -565,7 +624,7 @@ class Center:
         textl = text.splitlines()
         ntextl = max((len(v) for v in textl if v.strip()),default=0)
         return int((col - ntextl) / 2)
-
+    @staticmethod
     def _yspaces(text: str):
         try:
             lin = _terminal_size().lines
@@ -574,7 +633,7 @@ class Center:
         textl = text.splitlines()
         ntextl = len(textl)
         return int((lin - ntextl) / 2)
-
+    @staticmethod
     class BadAlignment(Exception):
         def __init__(self):
             super().__init__("Choose a correct alignment: Center.center / Center.left / Center.right")
@@ -670,3 +729,4 @@ class Banner:
 
 Box = Banner
 
+System.Init()
