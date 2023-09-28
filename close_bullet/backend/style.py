@@ -1,4 +1,4 @@
-from os import name as _name, system as _system, get_terminal_size as _terminal_size, terminal_size
+from os import name as _name, system as _system, get_terminal_size as _terminal_size
 from sys import stdout as _stdout
 from time import sleep as _sleep
 
