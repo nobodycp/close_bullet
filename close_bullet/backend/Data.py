@@ -12,7 +12,7 @@ class User:
 		self.data = {}
 		self.format_data()
 		if self.data['Root.screen_resize'] == 1:
-			self.terminal(self.data['Root.x'], self.data['Root.y'])
+			self.terminal(int(self.data['Root.x']), int(self.data['Root.y']))
 		self.data['hwid'] = self.hwid()
 	
 	@classmethod
@@ -28,7 +28,7 @@ class User:
 			if title.endswith('.exe'):
 				win32console.SetConsoleTitle(f'{appname.strip()}')
 				hwnd = win32gui.GetForegroundWindow()
-				win32gui.SetWindowPos(hwnd, 0, 0, 0, x, y, 0)
+				win32gui.SetWindowPos(hwnd, 0, x, y, 700, 300, 0)
 	
 	@staticmethod
 	def open_file():
