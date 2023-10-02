@@ -1,4 +1,4 @@
-import cfscrape
+#import cfscrape
 import cloudscraper
 import requests
 from . import Randoms
@@ -46,22 +46,4 @@ class Requests:
             else:
                 return s
 
-    @staticmethod
-    def cfscrape(Proxy=False):
-        s = cfscrape.create_scraper()
-        if Proxy:
-            s.proxies = {
-                'http': f'{userdata["Proxy.type"]}://{Randoms.proxy()}',
-                'https': f'{userdata["Proxy.type"]}://{Randoms.proxy()}',
-            }
-            return s
-        else:
-            if userdata['Proxy.active']:
-                # print(Random.proxy())
-                s.proxies = {
-                    'http': f'{userdata["Proxy.type"]}://{Randoms.proxy()}',
-                    'https': f'{userdata["Proxy.type"]}://{Randoms.proxy()}',
-                }
-                return s
-            else:
-                return s
+#
