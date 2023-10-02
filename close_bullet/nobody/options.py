@@ -1,8 +1,18 @@
-import re, base64, random, string, urllib, uuid,names,phonenumbers,pycountry
+import base64
+import names
+import phonenumbers
+import pycountry
+import random
+import re
+import string
+import urllib
+import uuid
 from datetime import datetime, timedelta
-from phonenumbers import carrier, timezone
-from phone_iso3166.country import phone_country
 from urllib.parse import unquote
+
+from phone_iso3166.country import phone_country
+from phonenumbers import carrier, timezone
+
 from .. import lists
 
 
@@ -11,8 +21,8 @@ class Phone:
         self.full = f'+{number.replace("+", "")}'
         self.prefix = phonenumbers.parse(self.full).country_code
         self.local = phonenumbers.parse(self.full).national_number
-        self.international = phonenumbers.format_number(phonenumbers.parse(self.full),phonenumbers.PhoneNumberFormat.INTERNATIONAL)
-        self.zero_lod = phonenumbers.format_number(phonenumbers.parse(self.full),phonenumbers.PhoneNumberFormat.NATIONAL)
+        self.international = phonenumbers.format_number(phonenumbers.parse(self.full), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+        self.zero_lod = phonenumbers.format_number(phonenumbers.parse(self.full), phonenumbers.PhoneNumberFormat.NATIONAL)
         self.alpha_2 = phone_country(number)
         if self.prefix == 383:
             self.alpha_3 = 'XXK'
@@ -22,6 +32,7 @@ class Phone:
             self.name = pycountry.countries.get(alpha_2=self.alpha_2).name
         self.carrier = carrier.name_for_number(phonenumbers.parse(number, self.alpha_2), "en")
         self.time_zone = timezone.time_zones_for_number(phonenumbers.parse(self.full, self.alpha_2))
+
 
 class Randoms:
     @staticmethod
@@ -44,21 +55,23 @@ class Randoms:
     def from_list(YourList: list):
         return random.choice(YourList)
 
+
 class FakeInfo:
     def __init__(self, domain: str = 'gmail.com'):
-        sex:str = random.choice(('male', 'female'))
+        sex: str = random.choice(('male', 'female'))
         if sex.lower() == 'male':
             title = 'Mr'
         elif sex.lower() == 'female':
             title = 'Ms'
-        self.title:str = title
-        self.first:str = names.get_first_name(sex.lower())
-        self.last:str = names.get_last_name()
-        self.full:str = f'{self.first} {self.last}'
-        self.email:str = self.full.replace(' ', random.choice(['_', '.', '', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])) + f'@{domain}'
-        self.date_of_birth:str = self.dob()
-        self.sex:str = sex
-        self.password:str = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits + '@!#$%^') for _ in range(15))
+        self.title: str = title
+        self.first: str = names.get_first_name(sex.lower())
+        self.last: str = names.get_last_name()
+        self.full: str = f'{self.first} {self.last}'
+        self.email: str = self.full.replace(' ', random.choice(['_', '.', '', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])) + f'@{domain}'
+        self.date_of_birth: str = self.dob()
+        self.sex: str = sex
+        self.username: str = Randoms.strings(15, string.digits + string.ascii_letters)
+        self.password: str = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits + '@!#$%^') for _ in range(15))
 
     @staticmethod
     def dob(split_type='-'):
@@ -67,13 +80,14 @@ class FakeInfo:
         random_date = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
         return random_date.strftime(f"%Y{split_type}%m{split_type}%d")
 
+
 class Options:
     @staticmethod
     def parse_text(text: str, before: str, after: str) -> str:
         return re.search(rf'{before}(.*?){after}', text).group(1).strip().rstrip()
 
     @staticmethod
-    def header_parse(headers_: str, lower:bool=False) -> dict:  # type: ignore
+    def header_parse(headers_: str, lower: bool = False) -> dict:  # type: ignore
         headers = {}
         for i in headers_.strip().split('\n'):
             try:
@@ -106,6 +120,7 @@ class Options:
     @staticmethod
     def url_decode(text):
         return urllib.urlencode(text)
+
     @staticmethod
     def url_encoded(text):
         return urllib.parse.quote_plus(text)
