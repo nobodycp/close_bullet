@@ -3,7 +3,7 @@ from ..external import SmsPlus
 from .coloramas import Fore, Style
 from .style import Box, Colors, Write
 
-ROOT_KEY = 'd9f4cec0-8e56-4777-91e3-8946c9de9e41'
+ROOT_KEY = '136dc8c3-73c7-482d-a9f1-92871a55d3e9'
 
 
 class User:
@@ -72,7 +72,7 @@ class Server:
     def Connect(self):
         payloads = {'key': f'{ROOT_KEY}', 'hwID': f'{self.hwid}'}
         try:
-            req = requests.post('http://5.199.166.54:8000/api/v1/clients/detail/', json=payloads)
+            req = requests.post('http://172.86.112.205:8000/api/v1/clients/detail/', json=payloads)
             # print(req.text)
             if self.hwid in req.text:
                 self.server_data = req.json()
