@@ -54,7 +54,10 @@ class Randoms:
     @staticmethod
     def from_list(YourList: list):
         return random.choice(YourList)
-
+        
+    @staticmethod
+    def from_list_custom(YourList: list, number: int):
+        return random.sample(YourList, int(number))
 
 class FakeInfo:
     def __init__(self, domain: str = 'gmail.com'):
