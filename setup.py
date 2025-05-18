@@ -14,7 +14,6 @@ setuptools.setup(
         'cfscrape',
         'twocaptcha',
         'nopecha',
-        '1stcaptcha',
         '2captcha-python',
         'pysocks',
         'pyinstaller',
