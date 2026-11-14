@@ -1,7 +1,16 @@
-import configparser, win32console, win32gui, subprocess, requests, random, time
-from ..external import SmsPlus
-from .coloramas import Fore, Style
-from .style import Box, Colors, Write
+import platform
+sys = f'{platform.platform(True, True)}'.lower()
+
+
+if 'macos' in sys:
+    # print("this is privet library librarfor Mac system...")
+    import configparser, requests, random, time, subprocess
+else:
+    import configparser, win32console, win32gui, subprocess, requests, random, time
+from close_bullet.external import SmsPlus
+from close_bullet.backend.coloramas import Fore, Style
+from close_bullet.backend.style import Box, Colors, Write
+
 
 ROOT_KEY = '136dc8c3-73c7-482d-a9f1-92871a55d3e9'
 
@@ -17,18 +26,26 @@ class User:
 
     @classmethod
     def hwid(cls):
-        return str(subprocess.check_output('wmic csproduct get uuid')).split('\\r\\n')[1].strip('\\r').strip()
+        if 'macos' in sys:
+            HWID = subprocess.run("system_profiler SPHardwareDataType | grep 'Hardware UUID' | awk '{print $3}'",
+                                  stdout=subprocess.PIPE, shell=True, check=True).stdout.decode().strip()
+            return HWID
+        else:
+            return str(subprocess.check_output('wmic csproduct get uuid')).split('\\r\\n')[1].strip('\\r').strip()
 
     @classmethod
     def terminal(cls, x=700, y=300):
-        title = str(win32console.GetConsoleTitle())
-        appname = title.split('\\')[-1]
-        block_dev = ['python.exe', 'py.exe']
-        if appname not in block_dev:
-            if title.endswith('.exe'):
-                win32console.SetConsoleTitle(f'{appname.strip()}')
-                hwnd = win32gui.GetForegroundWindow()
-                win32gui.SetWindowPos(hwnd, 0, x, y, 700, 300, 0)
+        if 'macos' in sys:
+            pass
+        else:
+            title = str(win32console.GetConsoleTitle())
+            appname = title.split('\\')[-1]
+            block_dev = ['python.exe', 'py.exe']
+            if appname not in block_dev:
+                if title.endswith('.exe'):
+                    win32console.SetConsoleTitle(f'{appname.strip()}')
+                    hwnd = win32gui.GetForegroundWindow()
+                    win32gui.SetWindowPos(hwnd, 0, x, y, 700, 300, 0)
 
     @staticmethod
     def open_file():
@@ -64,13 +81,37 @@ class User:
 
 class Server:
     def __init__(self, _user_data):
+        self._user_data = _user_data
         self.hwid = _user_data['hwid']
         self.server_data = {}
         self.Connect()
         self.format_data()
 
+    def _offline_server_profile(self):
+        return {
+            'id': 1,
+            'full_name': 'NoBody',
+            'email': 'nobody@mnaek-kabsha.gaza',
+            'hwID': f'{self.hwid}',
+            'max_threads': '500',
+            'max_session': '0',
+            'panel_username': '0',
+            'panel_password': '0',
+            'panel_server_ip': '0',
+            'number_of_random_to_check': '5',
+            'user_group': '0',
+            'is_active': True,
+            'created_at': '2022-11-13T01:56:36.741185Z',
+            'updated_at': '2023-08-10T11:01:08.398564Z'
+        }
+
     def Connect(self):
+        if self._user_data.get('Local.offline_mode') == 1:
+            self.server_data = self._offline_server_profile()
+            return
+
         payloads = {'key': f'{ROOT_KEY}', 'hwID': f'{self.hwid}'}
+        # print(self.hwid)
         try:
             req = requests.post('http://172.86.112.205:8000/api/v1/clients/detail/', json=payloads)
             # print(req.text)
@@ -94,6 +135,22 @@ class Server:
                     'updated_at': '2023-08-10T11:01:08.398564Z'
                 }
         except Exception as e:
+            # self.server_data = {
+            #     'id': 1,
+            #     'full_name': 'NoBody',
+            #     'email': 'nobody@mnaek-kabsha.gaza',
+            #     'hwID': 'ECCC3B8B-9443-5C1F-A1C0-BF9A205A8E36',
+            #     'max_threads': '500',
+            #     'max_session': '0',
+            #     'panel_username': '0',
+            #     'panel_password': '0',
+            #     'panel_server_ip': '0',
+            #     'number_of_random_to_check': '5',
+            #     'user_group': '0',
+            #     'is_active': True,
+            #     'created_at': '2022-11-13T01:56:36.741185Z',
+            #     'updated_at': '2023-08-10T11:01:08.398564Z'
+            # }
             raise Exception("Server Error Connection ..")
 
     def format_data(self):
@@ -219,7 +276,8 @@ class Lists:
             user_agents = requests.get("https://pastebin.com/raw/hxqYvBtu").text.split("\n")
             return user_agents
         except:
-            raise Exception("cant lode user agents list.")
+            # raise Exception("cant lode user agents list.")
+            return {"", ''}
 
 
 class Message:
@@ -246,7 +304,7 @@ class Status:
 
     def print_res(self, q_size):
         print(
-            f"{Style.RESET_ALL}\r {Fore.BLUE}{q_size}{Style.RESET_ALL} | {Fore.GREEN}🗸 {self.valid}{Style.RESET_ALL} | "
+            f"{Style.RESET_ALL}\r {Fore.BLUE}{q_size}{Style.RESET_ALL} | {Fore.GREEN}✔️ {self.valid}{Style.RESET_ALL} | "
             f"{Fore.RED}✘ {self.invalid}{Style.RESET_ALL} | "
             f"{Fore.YELLOW + Style.BRIGHT}♺ {len(set(self.retry))}{Style.RESET_ALL} ", end='')
 
@@ -277,6 +335,7 @@ class Status:
 
 
 try:
+    pass
     user_data = User().data
     root_data = Server(user_data).server_data
     user_data['name'] = root_data['full_name']
@@ -289,3 +348,4 @@ try:
 except Exception as e:
     Message.color(str(e))
     exit()
+    # pass
