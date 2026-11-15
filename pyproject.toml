@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "close-bullet"
+version = "0.3.2"
+description = "Privet Library For 01 Team"
+authors = [{ name = "NoBody_cp" }]
+requires-python = ">=3.9"
+dependencies = [
+    "requests",
+    "names",
+    "phonenumbers",
+    "pycountry",
+    "phone-iso3166",
+    "cloudscraper",
+    "twocaptcha",
+    "nopecha",
+    "2captcha-python",
+    "pysocks",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["close_bullet*"]

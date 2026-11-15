@@ -13,7 +13,10 @@ from urllib.parse import unquote
 from phone_iso3166.country import phone_country
 from phonenumbers import carrier, timezone
 
-from .. import lists
+def _get_lists():
+    from close_bullet import lists
+
+    return lists
 
 
 class Phone:
@@ -37,7 +40,7 @@ class Phone:
 class Randoms:
     @staticmethod
     def proxy() -> str:
-        return str(random.choice(lists.proxys)).strip()
+        return str(random.choice(_get_lists().proxys)).strip()
 
     @staticmethod
     def device_id() -> str:
@@ -45,7 +48,7 @@ class Randoms:
 
     @staticmethod
     def user_agent() -> str:
-        return str(random.choice(lists.user_agents)).strip()
+        return str(random.choice(_get_lists().user_agents)).strip()
 
     @staticmethod
     def strings(length: int, mode) -> str:
@@ -54,10 +57,7 @@ class Randoms:
     @staticmethod
     def from_list(YourList: list):
         return random.choice(YourList)
-        
-    @staticmethod
-    def from_list_custom(YourList: list, number: int):
-        return random.sample(YourList, int(number))
+
 
 class FakeInfo:
     def __init__(self, domain: str = 'gmail.com'):

@@ -1,21 +1,26 @@
-import os
+import warnings
+
+# macOS Python / LibreSSL: كتم تحذير urllib3 v2 عند التشغيل (لا تأثير على الاتصال)
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 v2 only supports OpenSSL",
+    category=Warning,
+)
+
 from .backend import Message, status, lists, user_data as userdata
 from .nobody import Randoms, Options, FakeInfo, Phone, Requests
+from .paths import TEMP_FOLDER as temp_folder, ensure_temp_folder
 
-temp_folder = os.path.expanduser("~/Desktop/Nobody_temp/")
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
-
-
-
-
-
-
-# def que_put_many(lst,chunk_size=5):
-#     def read_in_chunks():
-#         for i in range(0,len(lst),chunk_size):
-#             yield lst[i:i + chunk_size]
-#
-#     for data in read_in_chunks():
-#         que.put(data)
-
+__all__ = [
+    "Message",
+    "status",
+    "lists",
+    "userdata",
+    "Randoms",
+    "Options",
+    "FakeInfo",
+    "Phone",
+    "Requests",
+    "temp_folder",
+    "ensure_temp_folder",
+]

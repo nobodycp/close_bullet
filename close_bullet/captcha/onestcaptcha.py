@@ -1,7 +1,7 @@
 from .. import userdata
-from onest_captcha import OneStCaptchaClient
+#from onest_captcha import OneStCaptchaClient
 
-client = OneStCaptchaClient(apikey=userdata['Captcha.1st_captcha'])
+#client = OneStCaptchaClient(apikey=userdata['Captcha.1st_captcha'])
 
 
 class OneStCaptcha:
